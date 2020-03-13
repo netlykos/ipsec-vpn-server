@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  vpn:
+    build: .
+    image: netlykos/ipsec-vpn-server
+    restart: always
+    ports:
+      - "500:500/udp"
+      - "4500:4500/udp"
+    privileged: true
+    hostname: ipsec-vpn-server
+    container_name: ipsec-vpn-server
+    labels:
+      org.netlykos.description: "Accounting webapp"
+      org.netlykos.label: "ipsec-vpn-server"
