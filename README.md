@@ -1,31 +1,32 @@
-# IPSec VPN Server on Rapberry PI as Docker instance
+# IPSec VPN Server on Raspberry PI as Docker instance
 
-This project contains the code and build related files eequired to run a IPSec VPN Server as a docker instance on a Raspberry PI. It's insprired by other similar projects (see [links](#Links)) and was used a way to learn more about
+This project contains the code and build files required to run a IPSec VPN Server as a docker instance on a Raspberry PI. It's inspired by similar projects (see [Links](#Links)) and was used by myself to learn more about:
 - Docker: Build process, management and other items
-- IPsec: Configuration and management of a server
+- IPSec: Configuration and management of a IPSec service
+- Raspberry PI: What it can and cannot do
 
 ## Docker
 This section covers items related to docker
 
 ### Build Docker image
-To build the docker image and associate it the container, run the below command in the same directory as the ``docker-compose.yaml` ` and ``Dockerfile``.
+To build the docker image and associate it the container, run the below command in the same directory as the ``docker-compose.yaml`` and ``Dockerfile``.
 
 ```
 docker-compose build
 ```
 
 ### Docker image management
-To see if the docker image from the above step - shows details like, repository, tag, creation date and size.
+To see if the docker image from the above step - shows details like repository, tag, creation date and size (reason I switched to alpine).
 ```
 docker images
 ```
 
 To remove images (either because they have been updated or for another reason)
 ```
-docker rmi <hash>
+docker rmi <hash> | <repository>
 ```
 
-### Comaands related to docker container management
+### Commands related to docker container management
 To see if the docker image from the above step - shows details like, repository, tag, creation date and size.
 ```
 docker container ls -a
@@ -33,17 +34,17 @@ docker container ls -a
 
 Spin up a container and interact with it
 ```
-docker run -it netlykos/ipsec-vpn-server
+docker -it netlykos/ipsec-vpn-server
 ```
 
-Like previous, but prune it upon exit
+Like previous, but reclaim/prune it upon exit
 ```
 docker run --rm -it netlykos/ipsec-vpn-server
 ```
 
 ## Links
 - Alpine Linux package management system - (https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management)
-- Alipine Linux package content file finder (https://pkgs.alpinelinux.org/contents)
+- Alpine Linux package content file finder (https://pkgs.alpinelinux.org/contents)
 - Documentation on docker-compose (https://docs.docker.com/compose/compose-file/)
 - Docker on Raspberry PI (https://blog.alexellis.io/getting-started-with-docker-on-raspberry-pi/)
 - IPSec VPN on Raspberry PI (https://github.com/ritazh/l2tpvpn-docker-pi/)
