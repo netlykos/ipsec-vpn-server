@@ -1,10 +1,47 @@
-# raspberry-pi ipsec-vpn-server
+# IPSec VPN Server on Rapberry PI as Docker instance
 
-This project contains the code and build process required to run a ipsec-vpn-server as a docker image on the Raspberry PI. It's insprired by other similar projects (see [links](#links) and was used a way to learn more about
+This project contains the code and build related files eequired to run a IPSec VPN Server as a docker instance on a Raspberry PI. It's insprired by other similar projects (see [links](#Links)) and was used a way to learn more about
 - Docker: Build process, management and other items
 - IPsec: Configuration and management of a server
 
-## links
+## Docker
+This section covers items related to docker
+
+### Build Docker image
+To build the docker image and associate it the container, run the below command in the same directory as the ``docker-compose.yaml` ` and ``Dockerfile``.
+
+```
+docker-compose build
+```
+
+### Docker image management
+To see if the docker image from the above step - shows details like, repository, tag, creation date and size.
+```
+docker images
+```
+
+To remove images (either because they have been updated or for another reason)
+```
+docker rmi <hash>
+```
+
+### Comaands related to docker container management
+To see if the docker image from the above step - shows details like, repository, tag, creation date and size.
+```
+docker container ls -a
+```
+
+Spin up a container and interact with it
+```
+docker run -it netlykos/ipsec-vpn-server
+```
+
+Like previous, but prune it upon exit
+```
+docker run --rm -it netlykos/ipsec-vpn-server
+```
+
+## Links
 - Alpine Linux package management system - (https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management)
 - Alipine Linux package content file finder (https://pkgs.alpinelinux.org/contents)
 - Documentation on docker-compose (https://docs.docker.com/compose/compose-file/)
