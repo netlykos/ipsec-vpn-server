@@ -1,26 +1,29 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "HOST_IP=${HOST_IP}"
 echo "ROUTER_IP=${ROUTER_IP}"
 echo "IPSEC_SHARED_SECRET=${IPSEC_SHARED_SECRET}"
-echo "CHAP_ACCOUNTS:"
-for key in "${!CHAP_ACCOUNTS[@]}"
+# Convert CHAP_ACCOUNTS into an associative array called ACCOUNTS
+T_ACCOUNTS=$(env | grep CHAP_ACCOUNTS | sed 's/CHAP_ACCOUNTS//' | tr -s '\n' ' ')
+declare -A ACCOUNTS
+eval ACCOUNTS=( ${T_ACCOUNTS})
+for key in "${!ACCOUNTS[@]}"
 do 
-  echo "${key}:${CHAP_ACCOUNTS[$key]}"
+  echo "CHAP_ACCOUNT [${key}:${ACCOUNTS[${key}]}]"
 done
 
-sudo iptables --table nat --append POSTROUTING --jump MASQUERADE
-sudo iptables -I INPUT -p UDP --dport 4500 -j ACCEPT
-sudo iptables -I INPUT -p UDP --dport 500 -j ACCEPT
+iptables --table nat --append POSTROUTING --jump MASQUERADE
+iptables -I INPUT -p UDP --dport 4500 -j ACCEPT
+iptables -I INPUT -p UDP --dport 500 -j ACCEPT
 
 for vpn in /proc/sys/net/ipv4/conf/*; do echo 0 > $vpn/accept_redirects; echo 0 > $vpn/send_redirects; done 
 sysctl -p
 
-cat << EOF_SYSCTL_CONF >> /etc/sysctl.conf
-net.ipv4.conf.all.accept_redirects = 0
-net.ipv4.conf.all.send_redirects = 0
-net.ipv4.ip_forward = 1
-EOF_SYSCTL_CONF
+# cat << EOF_SYSCTL_CONF >> /etc/sysctl.conf
+/sbin/sysctl -e -q -w net.ipv4.conf.all.accept_redirects=0
+/sbin/sysctl -e -q -w net.ipv4.conf.all.send_redirects=0
+/sbin/sysctl -e -q -w net.ipv4.ip_forward=1
+# EOF_SYSCTL_CONF
 
 # Config IPsec tunnel
 # note: Openswan using left & right describe VPN server & clients
@@ -108,6 +111,7 @@ name = linkVPN
 ppp debug = yes
 pppoptfile = /etc/ppp/options.xl2tpd
 length bit = yes
+
 EOF_XL2TPD_CONF 
 echo "Completed configuration of file /etc/xl2tpd/xl2tpd.conf"
 
@@ -134,8 +138,8 @@ connect-delay 5000
 EOF_OPTIONS_XL2TPD 
 echo "Completed configuration of file /etc/ppp/options.xl2tpd"
 
-for key in "${!CHAP_ACCOUNTS[@]}"
+for key in "${!ACCOUNTS[@]}"
 do 
-  echo "${key} * ${CHAP_ACCOUNTS[$key]} *" >> /etc/ppp/chap-secrets
+  echo "${key} * ${ACCOUNTS[$key]} *" >> /etc/ppp/chap-secrets
 done
 echo "Completed configuration of file /etc/ppp/chap-secrets"

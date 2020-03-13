@@ -6,7 +6,7 @@ ENV APP_BASE_DIR /opt/apps/ipsec-vpn-server
 WORKDIR ${APP_BASE_DIR}
 COPY ./bin ${APP_BASE_DIR}/bin
 
-RUN apk add --no-cache iptables xl2tpd xl2tpd-openrc ppp openswan
+RUN apk add --no-cache iptables xl2tpd xl2tpd-openrc ppp openswan bash
 RUN chmod a+x ${APP_BASE_DIR}/bin/*
 
 EXPOSE 500/udp 4500/udp
