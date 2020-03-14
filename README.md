@@ -42,6 +42,13 @@ Like previous, but reclaim/prune it upon exit
 docker run --rm -it netlykos/ipsec-vpn-server
 ```
 
+To debug
+```
+docker run --cap-add=NET_ADMIN --rm -it --env-file host.env -p 500:500/udp -p 4500:4500/udp netlykos/ipsec-vpn-server
+docker run --privileged --rm -it --env-file host.env -p 500:500/udp -p 4500:4500/udp --net=host -v /lib/modules:/lib/modules:ro netlykos/ipsec-vpn-server
+```
+
+
 ## Links
 - Alpine Linux package management system - (https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management)
 - Alpine Linux package content file finder (https://pkgs.alpinelinux.org/contents)

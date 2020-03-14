@@ -57,7 +57,7 @@ conn L2TP-PSK-noNAT
   # l2tp-over-ipsec is transport mode
   type=transport
   #
-  left=$[HOST_IP]
+  left=${HOST_IP}
   #
   # For updated Windows 2000/XP clients,
   # to support old clients as well, use leftprotoport=17/%any
@@ -84,7 +84,6 @@ conn passthrough-for-non-l2tp
   right=0.0.0.0
   rightsubnet=0.0.0.0/0
   auto=route
-
 EOF_IPSEC_CONF
 echo "Completed configuration of file /etc/ipsec.conf"
 
@@ -111,8 +110,7 @@ name = linkVPN
 ppp debug = yes
 pppoptfile = /etc/ppp/options.xl2tpd
 length bit = yes
-
-EOF_XL2TPD_CONF 
+EOF_XL2TPD_CONF
 echo "Completed configuration of file /etc/xl2tpd/xl2tpd.conf"
 
 # Now work around with ppp, to provide DNS info to L2TP tunnel
@@ -135,7 +133,7 @@ lcp-echo-interval 30
 lcp-echo-failure 4
 nodefaultroute
 connect-delay 5000
-EOF_OPTIONS_XL2TPD 
+EOF_OPTIONS_XL2TPD
 echo "Completed configuration of file /etc/ppp/options.xl2tpd"
 
 for key in "${!ACCOUNTS[@]}"

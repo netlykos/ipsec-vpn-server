@@ -11,6 +11,8 @@ services:
     privileged: true
     hostname: ipsec-vpn-server
     container_name: ipsec-vpn-server
+    cap_add:
+      - NET_ADMIN
     labels:
-      org.netlykos.description: "Accounting webapp"
+      org.netlykos.description: "ipsec-vpn-server"
       org.netlykos.label: "ipsec-vpn-server"
