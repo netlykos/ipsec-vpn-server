@@ -3,7 +3,9 @@
 echo "HOST_IP=${HOST_IP}"
 echo "ROUTER_IP=${ROUTER_IP}"
 echo "IPSEC_SHARED_SECRET=${IPSEC_SHARED_SECRET}"
-# Convert CHAP_ACCOUNTS into an associative array called ACCOUNTS
+# Convert CHAP_ACCOUNTS into an associative array called ACCOUNTS, because we can't reference
+# CHAP_ACCOUNTS as an associative array for some reason, I think it's because it's not declared
+# as an associative array (declare -A CHAP_ACCOUNTS)
 T_ACCOUNTS=$(env | grep CHAP_ACCOUNTS | sed 's/CHAP_ACCOUNTS//' | tr -s '\n' ' ')
 declare -A ACCOUNTS
 eval ACCOUNTS=( ${T_ACCOUNTS})
@@ -19,15 +21,13 @@ iptables -I INPUT -p UDP --dport 500 -j ACCEPT
 for vpn in /proc/sys/net/ipv4/conf/*; do echo 0 > $vpn/accept_redirects; echo 0 > $vpn/send_redirects; done 
 sysctl -p
 
-# cat << EOF_SYSCTL_CONF >> /etc/sysctl.conf
 /sbin/sysctl -e -q -w net.ipv4.conf.all.accept_redirects=0
 /sbin/sysctl -e -q -w net.ipv4.conf.all.send_redirects=0
 /sbin/sysctl -e -q -w net.ipv4.ip_forward=1
-# EOF_SYSCTL_CONF
 
 # Config IPsec tunnel
 # note: Openswan using left & right describe VPN server & clients
-cat << EOF_IPSEC_CONF >> /etc/ipsec.conf
+cat << EOF_IPSEC_CONF > /etc/ipsec.conf
 version 2.0
 
 config setup
@@ -88,13 +88,13 @@ EOF_IPSEC_CONF
 echo "Completed configuration of file /etc/ipsec.conf"
 
 # Add PSK key, protect your key from the bright side of network
-cat << EOF_IPSEC_SECRET >> /etc/ipsec.secrets
+cat << EOF_IPSEC_SECRET > /etc/ipsec.d/ipsec.secrets
 ${HOST_IP} %any : PSK "${IPSEC_SHARED_SECRET}"
 EOF_IPSEC_SECRET
-echo "Completed configuration of file /etc/ipsec.secrets"
+echo "Completed configuration of file /etc/ipsec.d/ipsec.secrets"
 
 # See https://linux.die.net/man/5/xl2tpd.conf
-cat << EOF_XL2TPD_CONF >> /etc/xl2tpd/xl2tpd.conf
+cat << EOF_XL2TPD_CONF > /etc/xl2tpd/xl2tpd.conf
 [global]
 ipsec saref = yes
 listen-addr = ${HOST_IP}
@@ -114,7 +114,7 @@ EOF_XL2TPD_CONF
 echo "Completed configuration of file /etc/xl2tpd/xl2tpd.conf"
 
 # Now work around with ppp, to provide DNS info to L2TP tunnel
-cat << EOF_OPTIONS_XL2TPD >> /etc/ppp/options.xl2tpd
+cat << EOF_OPTIONS_XL2TPD > /etc/ppp/options.xl2tpd
 ipcp-accept-local
 ipcp-accept-remote
 ms-dns ${ROUTER_IP}
@@ -136,8 +136,15 @@ connect-delay 5000
 EOF_OPTIONS_XL2TPD
 echo "Completed configuration of file /etc/ppp/options.xl2tpd"
 
+# wipe out cap-secrets (don't want anything if it was present before)
+> /etc/ppp/chap-secrets
 for key in "${!ACCOUNTS[@]}"
 do 
   echo "${key} * ${ACCOUNTS[$key]} *" >> /etc/ppp/chap-secrets
 done
 echo "Completed configuration of file /etc/ppp/chap-secrets"
+
+modprobe af_key
+
+/etc/init.d/xl2tpd restart
+/etc/init.d/ipsec restart

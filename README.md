@@ -39,13 +39,20 @@ docker run -it netlykos/ipsec-vpn-server
 
 Like previous, but reclaim/prune it upon exit
 ```
-docker run --rm -it netlykos/ipsec-vpn-server
+docker run --rm -it --env-file host.env netlykos/ipsec-vpn-server
+```
+
+Connect to a running container
+```
+docker exec -it <container id/name> /bin/bash
 ```
 
 To debug
 ```
 docker run --cap-add=NET_ADMIN --rm -it --env-file host.env -p 500:500/udp -p 4500:4500/udp netlykos/ipsec-vpn-server
+docker run --privileged --rm -it --env-file host.env -p 500:500/udp -p 4500:4500/udp --net=host -v /lib/modules:/lib/modules:ro netlykos/ipsec-vpn-server bash
 docker run --privileged --rm -it --env-file host.env -p 500:500/udp -p 4500:4500/udp --net=host -v /lib/modules:/lib/modules:ro netlykos/ipsec-vpn-server
+
 ```
 
 
@@ -56,6 +63,7 @@ docker run --privileged --rm -it --env-file host.env -p 500:500/udp -p 4500:4500
 - Docker on Raspberry PI (https://blog.alexellis.io/getting-started-with-docker-on-raspberry-pi/)
 - IPSec VPN on Raspberry PI (https://github.com/ritazh/l2tpvpn-docker-pi/)
 - Docker IPSec VPN server on Raspberry PI (#2) (https://github.com/hwdsl2/docker-ipsec-vpn-server/)
+- Docker IPSec VPN server on Raspberry PI (#3) (https://github.com/ubergarm/l2tp-ipsec-vpn-client)
 - IPSec configuration (https://imdjh.github.io/sysadmin/2015/04/19/setup-pptp-with-l2tp-vpn-server-on-wheezy.html)
 - ipsec.conf(5) man page (https://linux.die.net/man/5/ipsec.conf)
 - Associative arrays in bash (https://www.artificialworlds.net/blog/2012/10/17/bash-associative-array-examples/)
